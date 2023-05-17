@@ -1,32 +1,7 @@
-/*
- * Este es el enunciado del ejercicio:
-- Crear una lista doblemente ligada que simule los clientes de un banco (identificacién (no puede existir mas de una vez), nombre, estrato social, ciudad y activo)
-
-- Crear una lista ligada simple que simule las cuentas de un banco
-(número de cuenta (no se puede repetir), identificacion del
-cliente (debe existir en la lista anterior y se puede repetir),
-saldo inicial que no puede ser menor a 50000 pesos y activo)
-
-- Crear una tercera lista ligada que simule las operaciones (la
-cuenta debe existir) del banco (consignacion (se debe aumentar
-la cantidad al saldo la cantidad consignada) y retiro de dinero
-(solo se puede retirar si hay saldo suficiente)), los campos son:
-consecutivo, numero de cuenta, fecha, valor, tipo de
-transaccion y activo)
-- Crear un menu que me permita manejar cualquiera de las tres operaciones (clientes, cuentas y operaciones)
--  La información de los clientes se debe poder ingresar, modificar
-y anular/desanular registros
- - Las cuentas se deben poder adicionar, anular o desanular un
-registro
-- Las consultas se deben manejar en pilas y colas y son las
-siguientes:
-- Encolar los registros de los clientes de la ciudad de Cali que son
-estrato cuatro o superior
-- Apilar Las cuentas cuyo saldo es mayor de 5000000 pesos
-+ Mostrar la suma de todas cuentas
- */
 #include <iostream>
 #include "string"
+#include <queue>
+#include <stack>
 
 using namespace std;
 
@@ -84,7 +59,7 @@ public:
     Banco() {}
 
     // Metodo para agregar a un nuevo cliente
-    void agregar_Cliente() {
+    void agregar_cliente() {
         string respuesta;
         do {
             Cliente *nuevoCliente = new Cliente;
@@ -138,7 +113,7 @@ public:
     }
 
     // Metodo para modificar un cliente
-    void modificarCliente() {
+    void modificar_cliente() {
         int id;
         cout << "Ingrese la identificación del cliente a modificar: ";
         cin >> id;
@@ -170,6 +145,44 @@ public:
         cliente->ciudad = ciudad;
     }
 
+    // Metodo para cambiar el estado de un cliente
+    void cambiar_estado_cliente() {
+        int id;
+        cout << "Ingrese la identificación del cliente a cambiar de estado: ";
+        cin >> id;
+
+        Cliente *cliente = cabeza;
+        while (cliente != nullptr && cliente->ID != id) {
+            cliente = cliente->ligader;
+        }
+
+        if (cliente == nullptr) {
+            cout << "No se encontró un cliente con la identificación proporcionada." << endl;
+            return;
+        }
+
+        cliente->activo = !cliente->activo;
+        cout << "El estado del cliente ha sido cambiado." << endl;
+    }
+
+    // Metodo para encolar los registros de los clientes de la ciudad de Cali que son estrato cuatro o superior
+    void encolar_clientes_cali() {
+        queue<Cliente*> clientesCali;
+        Cliente* actual = cabeza;
+        while (actual != NULL) {
+            if (actual->ciudad == "Cali" && actual->estrato >= 4) {
+                clientesCali.push(actual);
+            }
+            actual = actual->ligader;
+        }
+        // Imprimir los clientes de la cola
+        while (!clientesCali.empty()) {
+            Cliente* cliente = clientesCali.front();
+            cout << cliente->ID << " | " << cliente->nombre << " | " << cliente->estrato << " | " << cliente->ciudad << " | " << (cliente->activo ? "Sí" : "No") << endl;
+            clientesCali.pop();
+        }
+    }
+
     // Metodo para imprimir todos los clientes
     void imprimir_clientes() {
         Cliente *temp = cabeza;
@@ -179,31 +192,6 @@ public:
                  << (temp->activo ? "Sí" : "No") << endl;
             temp = temp->ligader;
         }
-    }
-
-    // Método para el menú de clientes, su aplica la misma logica inicial
-    void menu_Clientes() {
-        int op;
-        do {
-            cout << "1. Agregar un cliente" << endl;
-            cout << "2. Mostrar la lista de clientes" << endl;
-            cout << "0. Salir" << endl;
-            cout << "Ingrese la opción que desea realizar: ";
-            cin >> op;
-            switch (op) {
-                case 1:
-                    agregar_Cliente();
-                    break;
-                case 2:
-                    imprimir_clientes();
-                    break;
-                case 0:
-                    cout << "Saliendo del programa..." << endl;
-                    break;
-                default:
-                    cout << "Opción inválida." << endl;
-            }
-        } while (op != 0);
     }
 
     //Metodo para agregar cuentas
@@ -272,6 +260,26 @@ public:
         cout << "Cuenta agregada exitosamente." << endl;
     }
 
+    // Metodo para cambiar el estadode una cuenta
+    void cambiar_estado_cuenta() {
+        int numCuenta;
+        cout << "Ingrese el número de la cuenta a cambiar de estado: ";
+        cin >> numCuenta;
+
+        Cuenta *cuenta = cabezaCuentas;
+        while (cuenta != nullptr && cuenta->numeroDeCuenta != numCuenta) {
+            cuenta = cuenta->siguiente;
+        }
+
+        if (cuenta == nullptr) {
+            cout << "No se encontró una cuenta con el número proporcionado." << endl;
+            return;
+        }
+
+        cuenta->activo = !cuenta->activo;
+        cout << "El estado de la cuenta ha sido cambiado." << endl;
+    }
+
     // Metodo para imprimir cuentas
     void imprimir_cuentas() {
         Cuenta *cuentaActual = cabezaCuentas;
@@ -291,7 +299,7 @@ public:
     }
 
     // Metodo para hacer las operaciones bancarias
-    void agregarOperacion() {
+    void agregar_operacion() {
         Operacion *nuevaOperacion = new Operacion;
 
         cout << "Ingrese el número consecutivo de la operación: ";
@@ -353,7 +361,7 @@ public:
     }
 
     // Metodo para imprimir las operaciones
-    void imprimirOperaciones() {
+    void imprimir_operaciones() {
         Operacion *operacionActual = cabezaOperaciones;
 
         if (operacionActual == nullptr) {
@@ -370,6 +378,170 @@ public:
             }
         }
     }
+
+    // Metodo para apilar las cuentas cuyo saldo es mayor de 5000000 pesos
+    void apilar_cuentas_saldo_alto() {
+        stack<Cuenta*> cuentasSaldoAlto;
+        Cuenta* actual = cabezaCuentas;
+        while (actual != NULL) {
+            if (actual->saldoInicial > 5000000) {
+                cuentasSaldoAlto.push(actual);
+            }
+            actual = actual->siguiente;
+        }
+        // Imprimir las cuentas de la pila
+        while (!cuentasSaldoAlto.empty()) {
+            Cuenta* cuenta = cuentasSaldoAlto.top();
+            cout << "\nNúmero de cuenta: " << cuenta->numeroDeCuenta
+                 << "\nIdentificación del cliente: " << cuenta->identificacionCliente
+                 << "\nSaldo: " << cuenta->saldoInicial
+                 << "\nActivo: " << (cuenta->activo ? "Sí" : "No") << ::endl;
+            cuentasSaldoAlto.pop();
+        }
+    }
+
+    // Metodo para mostrar la suma de todas las cuentas
+    void mostrar_suma_cuentas() {
+        int suma = 0;
+        Cuenta* actual = cabezaCuentas;
+        while (actual != NULL) {
+            suma += actual->saldoInicial;
+            actual = actual->siguiente;
+        }
+        cout << "La suma de todas las cuentas es: " << suma << endl;
+    }
+
+    // Método para el menú de clientes, su aplica la misma logica inicial
+    void menu_clientes() {
+        int op;
+        do {
+            cout << "\n1. Agregar un cliente" << endl;
+            cout << "2. Modificar un cliente" << endl;
+            cout << "3. Cambiar el estado de un cliente" << endl;
+            cout << "4. Mostrar cola de clientes de Cali estrato 4 o superior" << endl;
+            cout << "5. Mostrar la lista de clientes" << endl;
+            cout << "0. Salir" << endl;
+            cout << "Ingrese la opción que desea realizar: ";
+            cin >> op;
+            switch (op) {
+                case 1:
+                    agregar_cliente();
+                    break;
+                case 2:
+                    modificar_cliente();
+                    break;
+                case 3:
+                    cambiar_estado_cliente();
+                    break;
+                case 4:
+                    encolar_clientes_cali();
+                    break;
+                case 5:
+                    imprimir_clientes();
+                    break;
+                case 0:
+                    cout << "Saliendo del programa..." << endl;
+                    break;
+                default:
+                    cout << "Opción inválida." << endl;
+            }
+        } while (op != 0);
+    }
+
+    // Método para el menú de cuentas, su aplica la misma logica inicial
+    void menu_cuentas() {
+        int op;
+        do {
+            cout << "\n1. Agregar una cuenta" << endl;
+            cout << "2. Cambiar el estado de una cuenta" << endl;
+            cout << "3. Mostrar la lista de cuentas" << endl;
+            cout << "4. Mostrar pila de cuentas con el saldo mayor a 5000000 pesos" << endl;
+            cout << "5. Ver la suma total de las cuentas" << endl;
+            cout << "0. Salir" << endl;
+            cout << "Ingrese la opción que desea realizar: ";
+            cin >> op;
+            switch (op) {
+                case 1:
+                    agregar_cuenta();
+                    break;
+                case 2:
+                    cambiar_estado_cuenta();
+                    break;
+                case 3:
+                    imprimir_cuentas();
+                    break;
+                case 4:
+                    apilar_cuentas_saldo_alto();
+                    break;
+                case 5:
+                    mostrar_suma_cuentas();
+                    break;
+                case 0:
+                    cout << "Saliendo del programa..." << endl;
+                    break;
+                default:
+                    cout << "Opción inválida." << endl;
+            }
+        } while (op != 0);
+    }
+
+    // Método para el menú de cuentas, su aplica la misma logica inicial
+    void menu_operaciones() {
+        int op;
+        do {
+            cout << "1. Crear una nueva operación" << endl;
+            cout << "2. Imprimir las operaciones" << endl;
+            cout << "0. Salir" << endl;
+            cout << "Ingrese la opción que desea realizar: ";
+            cin >> op;
+            switch (op) {
+                case 1:
+                    agregar_operacion();
+                    break;
+                case 2:
+                    imprimir_operaciones();
+                    break;
+                case 0:
+                    cout << "Saliendo del programa..." << endl;
+                    break;
+                default:
+                    cout << "Opción inválida." << endl;
+            }
+        } while (op != 0);
+    }
+
+    // Se crea un meno globla para evitar acoplar este codigo dentro del main
+    void menu(){
+        int opcion;
+        do {
+            cout << "\n1. Ver menú clientes\n"
+                 << "2. Ver menú cuentas\n"
+                 << "3. Ver menú operaciones\n"
+                 << "4. Salir\n"
+                 << "Ingrese una opción: ";
+            cin >> opcion;
+
+            switch (opcion) {
+                case 1:
+                    // Llama a la función del menu de clientes
+                    menu_clientes();
+                    break;
+                case 2:
+                    // Llama a la función del menu de cuentas
+                    menu_cuentas();
+                    break;
+                case 3:
+                    // Llama a la función del menu de operaciones
+                    menu_operaciones();
+                    break;
+                case 4:
+                    std::cout << "Saliendo del programa.\n";
+                    break;
+                default:
+                    std::cout << "Opción no válida. Por favor intente de nuevo.\n";
+            }
+        } while (opcion != 4);
+    }
 };
 
 int main() {
@@ -377,52 +549,7 @@ int main() {
     Banco banco;
 
     // Se utilizan los métodos de la instancia de Banco
-    //banco.menu_Clientes();
-
-    int opcion;
-    do {
-        cout << "\n1. Agregar cliente\n"
-             << "2. Agregar cuenta\n"
-             << "3. Agregar operación\n"
-             << "4. Mostrar clientes\n"
-             << "5. Mostrar cuentas\n"
-             << "6. Mostrar operaciones\n"
-             << "7. Salir\n"
-             << "Ingrese una opción: ";
-        cin >> opcion;
-
-        switch (opcion) {
-            case 1:
-                // Llama a la función para agregar cliente
-                banco.menu_Clientes();
-                break;
-            case 2:
-                // Llama a la función para agregar cuenta
-                banco.agregar_cuenta();
-                break;
-            case 3:
-                // Llama a la función para agregar operación
-                banco.agregarOperacion();
-                break;
-            case 4:
-                // Llama a la función para mostrar clientes
-                banco.imprimir_clientes();
-                break;
-            case 5:
-                // Llama a la función para mostrar cuentas
-                banco.imprimir_cuentas();
-                break;
-            case 6:
-                // Llama a la función para mostrar operaciones
-                banco.imprimirOperaciones();
-                break;
-            case 7:
-                std::cout << "Saliendo del programa.\n";
-                break;
-            default:
-                std::cout << "Opción no válida. Por favor intente de nuevo.\n";
-        }
-    } while (opcion != 7);
+    banco.menu();
 
     return 0;
 };
