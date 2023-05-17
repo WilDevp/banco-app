@@ -41,12 +41,12 @@ public:
 //};*/
  // Se considera refactorizar a una clase
 
-typedef struct Cliente *Registro;
+/*typedef struct Cliente *Registro;
 Registro cabeza, anterior;
 
-int Id = 001;
+int Id = 001;*/
 
-void crear_Cliente() {
+/*void crear_Cliente() {
 
     string opc;
     string Ciudad;
@@ -123,9 +123,9 @@ void crear_Cliente() {
 
     cout << "\n\t¡Los datos se han ingresado exitosamente!" << endl;
 
-} //funciona
+}*/ //funciona
 
-void mostrar_Lista() {
+/*void mostrar_Lista() {
 
     if (cabeza == NULL) {
 
@@ -148,9 +148,9 @@ void mostrar_Lista() {
 
     }
 
-} //funciona
+} */ //funciona
 
-void menu_Clientes() {
+/*void menu_Clientes() {
 
     int op;
     string opc;
@@ -205,10 +205,10 @@ void menu_Clientes() {
     } while (op != 0);
 
 }
-
+*/
 int main() {
 
-    int Sel;
+   /* int Sel;
     string opc;
 
     Registro ultimo = NULL;
@@ -290,6 +290,6 @@ int main() {
 
         }
 
-    } while (Sel != 0);
+    } while (Sel != 0);*/
 
 }
