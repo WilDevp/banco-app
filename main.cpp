@@ -8,7 +8,7 @@ cliente (debe existir en la lista anterior y se puede repetir),
 saldo inicial que no puede ser menor a 50000 pesos y activo)
 
 - Crear una tercera lista ligada que simule las operaciones (la
-cuenta debe existir) del banco (consignacién (se debe aumentar
+cuenta debe existir) del banco (consignacion (se debe aumentar
 la cantidad al saldo la cantidad consignada) y retiro de dinero
 (solo se puede retirar si hay saldo suficiente)), los campos son:
 consecutivo, numero de cuenta, fecha, valor, tipo de
@@ -53,6 +53,23 @@ struct Cuenta {
     Cuenta *siguiente;
 };
 
+// Clase Operacion
+class Operacion {
+public:
+    int consecutivo;
+    int numeroDeCuenta;
+    string fecha;
+    int valor;
+    string tipoTransaccion;
+    int activo;
+    Operacion *siguiente;
+
+    Operacion() {
+        siguiente = nullptr;
+    }
+};
+
+
 /* Como el ejercicio indica en el enunciado que vamos a gestionar funcionalidades de un Banco
  * incialmente clientes debemos seguir con ese estandard
  * */
@@ -61,6 +78,8 @@ class Banco {
     Cliente *cabeza = nullptr;
     Cliente *cola = nullptr;
     Cuenta *cabezaCuentas = NULL;
+    Operacion *cabezaOperaciones = nullptr;
+
 public:
     Banco() {}
 
@@ -118,6 +137,40 @@ public:
         } while (respuesta == "Si" || respuesta == "si");
     }
 
+    // Metodo para modificar un cliente
+    void modificarCliente() {
+        int id;
+        cout << "Ingrese la identificación del cliente a modificar: ";
+        cin >> id;
+
+        Cliente *cliente = cabeza;
+        while (cliente != nullptr && cliente->ID != id) {
+            cliente = cliente->ligader;
+        }
+
+        if (cliente == nullptr) {
+            cout << "No se encontró un cliente con la identificación proporcionada." << endl;
+            return;
+        }
+
+        string nombre;
+        int estrato;
+        string ciudad;
+
+        cout << "Ingrese el nuevo nombre del cliente: ";
+        cin >> nombre;
+        cliente->nombre = nombre;
+
+        cout << "Ingrese el nuevo estrato del cliente: ";
+        cin >> estrato;
+        cliente->estrato = estrato;
+
+        cout << "Ingrese la nueva ciudad del cliente: ";
+        cin >> ciudad;
+        cliente->ciudad = ciudad;
+    }
+
+    // Metodo para imprimir todos los clientes
     void imprimir_clientes() {
         Cliente *temp = cabeza;
 
@@ -153,6 +206,7 @@ public:
         } while (op != 0);
     }
 
+    //Metodo para agregar cuentas
     void agregar_cuenta() {
         Cuenta *nuevaCuenta = new Cuenta;
         nuevaCuenta->siguiente = NULL;
@@ -218,8 +272,9 @@ public:
         cout << "Cuenta agregada exitosamente." << endl;
     }
 
+    // Metodo para imprimir cuentas
     void imprimir_cuentas() {
-        Cuenta* cuentaActual = cabezaCuentas;
+        Cuenta *cuentaActual = cabezaCuentas;
 
         if (this->cabeza == nullptr) {
             cout << "No hay cuentas en la lista." << std::endl;
@@ -234,6 +289,87 @@ public:
         }
 
     }
+
+    // Metodo para hacer las operaciones bancarias
+    void agregarOperacion() {
+        Operacion *nuevaOperacion = new Operacion;
+
+        cout << "Ingrese el número consecutivo de la operación: ";
+        cin >> nuevaOperacion->consecutivo;
+
+        cout << "Ingrese el número de cuenta: ";
+        cin >> nuevaOperacion->numeroDeCuenta;
+
+        // Verificamos que la cuenta exista
+        Cuenta *cuentaActual = cabezaCuentas;
+        while (cuentaActual != NULL) {
+            if (cuentaActual->numeroDeCuenta == nuevaOperacion->numeroDeCuenta) {
+                break;
+            }
+            cuentaActual = cuentaActual->siguiente;
+        }
+        if (cuentaActual == NULL) {
+            cout << "La cuenta no existe." << endl;
+            delete nuevaOperacion;
+            return;
+        }
+
+        cout << "Ingrese la fecha de la operación (YYYY-MM-DD): ";
+        cin >> nuevaOperacion->fecha;
+
+        cout << "Ingrese el tipo de transacción (consignacion/retiro): ";
+        cin >> nuevaOperacion->tipoTransaccion;
+
+        cout << "Ingrese el valor de la operación: ";
+        cin >> nuevaOperacion->valor;
+
+        if (nuevaOperacion->tipoTransaccion == "retiro" && cuentaActual->saldoInicial < nuevaOperacion->valor) {
+            cout << "Saldo insuficiente para el retiro." << endl;
+            delete nuevaOperacion;
+            return;
+        }
+
+        if (nuevaOperacion->tipoTransaccion == "consignacion") {
+            cuentaActual->saldoInicial += nuevaOperacion->valor;
+        } else if (nuevaOperacion->tipoTransaccion == "retiro") {
+            cuentaActual->saldoInicial -= nuevaOperacion->valor;
+        }
+
+        cout << "Ingrese el estado de la operación (activo = 1, inactivo = 0): ";
+        cin >> nuevaOperacion->activo;
+
+        // Agregar la operación a la lista
+        if (cabezaOperaciones == NULL) {
+            cabezaOperaciones = nuevaOperacion;
+        } else {
+            Operacion *temporal = cabezaOperaciones;
+            while (temporal->siguiente != NULL) {
+                temporal = temporal->siguiente;
+            }
+            temporal->siguiente = nuevaOperacion;
+        }
+
+        cout << "Operación agregada exitosamente." << endl;
+    }
+
+    // Metodo para imprimir las operaciones
+    void imprimirOperaciones() {
+        Operacion *operacionActual = cabezaOperaciones;
+
+        if (operacionActual == nullptr) {
+            cout << "No hay operaciones en la lista." << endl;
+        } else {
+            while (operacionActual != nullptr) {
+                cout << "\nConsecutivo: " << operacionActual->consecutivo
+                     << "\nNúmero de cuenta: " << operacionActual->numeroDeCuenta
+                     << "\nFecha: " << operacionActual->fecha
+                     << "\nValor: " << operacionActual->valor
+                     << "\nTipo de transacción: " << operacionActual->tipoTransaccion
+                     << "\nActivo: " << (operacionActual->activo ? "Sí" : "No") << ::endl;
+                operacionActual = operacionActual->siguiente;
+            }
+        }
+    }
 };
 
 int main() {
@@ -247,9 +383,11 @@ int main() {
     do {
         cout << "\n1. Agregar cliente\n"
              << "2. Agregar cuenta\n"
-             << "3. Mostrar clientes\n"
-             << "4. Mostrar cuentas\n"
-             << "5. Salir\n"
+             << "3. Agregar operación\n"
+             << "4. Mostrar clientes\n"
+             << "5. Mostrar cuentas\n"
+             << "6. Mostrar operaciones\n"
+             << "7. Salir\n"
              << "Ingrese una opción: ";
         cin >> opcion;
 
@@ -263,20 +401,28 @@ int main() {
                 banco.agregar_cuenta();
                 break;
             case 3:
+                // Llama a la función para agregar operación
+                banco.agregarOperacion();
+                break;
+            case 4:
                 // Llama a la función para mostrar clientes
                 banco.imprimir_clientes();
                 break;
-            case 4:
+            case 5:
                 // Llama a la función para mostrar cuentas
                 banco.imprimir_cuentas();
                 break;
-            case 5:
+            case 6:
+                // Llama a la función para mostrar operaciones
+                banco.imprimirOperaciones();
+                break;
+            case 7:
                 std::cout << "Saliendo del programa.\n";
                 break;
             default:
                 std::cout << "Opción no válida. Por favor intente de nuevo.\n";
         }
-    } while (opcion != 5);
+    } while (opcion != 7);
 
     return 0;
-}
+};
