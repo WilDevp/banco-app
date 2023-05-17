@@ -13,89 +13,10 @@ struct Cliente {
     Cliente *ligader;
     Cliente *Anterior;
     Cliente *Sig;
-};
+}; // Se considera refactorizar a una clase
 
 typedef struct Cliente *Registro;
 Registro cabeza, anterior;
-Registro p = new(struct Cliente);
-
-//
-// P I L A S
-//
-
-Registro Crear_Pila(Registro tope, int id, string nombre, int estrato, string ciudad, int activo) {
-
-    Registro reg = new(struct Cliente);
-    reg->ID = id;
-    reg->nombre = nombre;
-    reg->estrato = estrato;
-    reg->ciudad = ciudad;
-    reg->activo = activo;
-    reg->Anterior = tope;
-    tope = reg;
-
-    return tope;
-
-}
-
-void Imprimir_Pila(Registro tope) {
-
-    cout << "\t\n Cuentas con saldo mayor a $5'000.000: " << endl;
-    p = tope;
-
-    cout << "ID\tNombre\tEstrato\tCiudad\tActivo" << endl;
-
-    while (p != NULL) {
-
-        cout << p->ID << " | " << p->nombre << " | " << p->estrato << " | " << p->ciudad << " | " << p->activo << endl;
-        p = p->Anterior;
-
-    }
-
-}
-
-//
-// C O L A S
-//
-
-Registro Crear_Cola(int id, string nombre, int estrato, string ciudad, int activo, Registro ultimo) {
-
-    Registro reg = new(struct Cliente);
-    reg->ID = id;
-    reg->nombre = nombre;
-    reg->estrato = estrato;
-    reg->ciudad = ciudad;
-    reg->activo = activo;
-    reg->Sig = NULL;
-
-    if (ultimo != NULL)
-
-        ultimo->Sig = reg;
-
-    ultimo = reg;
-
-    return ultimo;
-
-}
-
-void Imprimir_Cola(Registro primero) {
-
-    cout << "ID\tNombre\tEstrato\tCiudad\tActivo" << endl;
-
-    while (p != NULL) {
-
-        cout << p->ID << " | " << p->nombre << " | " << p->estrato << " | " << p->ciudad << " | " << p->activo << endl;
-        primero = primero->Sig;
-
-    }
-
-}
-
-
-//
-// F U N C I O N E S
-//
-
 
 int Id = 001;
 
@@ -176,7 +97,7 @@ void crear_Cliente() {
 
     cout << "\n\t¡Los datos se han ingresado exitosamente!" << endl;
 
-}
+} //funciona
 
 void mostrar_Lista() {
 
@@ -201,7 +122,7 @@ void mostrar_Lista() {
 
     }
 
-}
+} //funciona
 
 void menu_Clientes() {
 
