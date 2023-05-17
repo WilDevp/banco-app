@@ -49,42 +49,71 @@ public:
  * */
 
 class Banco {
-    Cliente* cabeza = nullptr;
-    Cliente* cola = nullptr;
+    Cliente *cabeza = nullptr;
+    Cliente *cola = nullptr;
 public:
     Banco() {}
 
     // Metodo para agregar a un nuevo cliente
     void agregar_Cliente() {
-        Cliente* nuevoCliente = new Cliente;
+        string respuesta;
+        do {
+            Cliente *nuevoCliente = new Cliente;
 
-        nuevoCliente->ID = 01;
+            // Configuración inicial
+            nuevoCliente->ligader = NULL;
+            nuevoCliente->ligaizq = NULL;
 
-        cout << "Ingrese su nombre hermoso  : ";
-        cin >> nuevoCliente->nombre;
-        cout << "Ingrese su estrato social: ";
-        cin >> nuevoCliente->estrato;
-        cout << "Ingrese la ciudad donde vive: ";
-        cin >> nuevoCliente->ciudad;
-        cout << "Ingrese el monto: ";
-        cin >> nuevoCliente->activo;
-        if (cabeza == nullptr) {
-            // Si la lista está vacía, el nuevo cliente es tanto la cabeza como la cola
-            cabeza = nuevoCliente;
-            cola = nuevoCliente;
-        } else {
-            // Si la lista no está vacía, agregamos el nuevo cliente al final
-            cola->ligader = nuevoCliente;
-            nuevoCliente->ligaizq = cola;
-            cola = nuevoCliente;
-        }
+            // Ingreso de datos del cliente
+            cout << "Ingrese la identificación del cliente: ";
+            cin >> nuevoCliente->ID;
+
+            // Verificación de la identificación que sea unica
+            Cliente* actual = cabeza;
+            while (actual != NULL) {
+                if (actual->ID == nuevoCliente->ID) {
+                    cout << "La identificación ingresada ya existe. Intente de nuevo." << endl;
+                    delete nuevoCliente; // Liberamos la memoria asignada para evitar fugas de memoria.
+                    return;
+                }
+                actual = actual->ligader;
+            }
+
+            cout << "Ingrese su nombre: ";
+            cin >> nuevoCliente->nombre;
+
+            cout << "Ingrese su estrato social: ";
+            cin >> nuevoCliente->estrato;
+
+            cout << "Ingrese la ciudad donde vive: ";
+            cin >> nuevoCliente->ciudad;
+
+            cout << "Ingrese el monto: ";
+            cin >> nuevoCliente->activo;
+
+            if (cabeza == nullptr) {
+                // Si la lista está vacía, el nuevo cliente es tanto la cabeza como la cola
+                cabeza = nuevoCliente;
+                cola = nuevoCliente;
+            } else {
+                // Si la lista no está vacía, agregamos el nuevo cliente al final
+                cola->ligader = nuevoCliente;
+                nuevoCliente->ligaizq = cola;
+                cola = nuevoCliente;
+            }
+
+            cout << "¿Desea agregar otro cliente? (Si/No): ";
+            cin >> respuesta;
+
+        } while (respuesta == "Si" || respuesta == "si");
     }
 
     void imprimirClientes() {
-        Cliente* temp = cabeza;
+        Cliente *temp = cabeza;
 
         while (temp != nullptr) {
-            cout << temp->ID << " | " << temp->nombre << " | " << temp->estrato << " | " << temp->ciudad << " | " << temp->activo << endl;
+            cout << temp->ID << " | " << temp->nombre << " | " << temp->estrato << " | " << temp->ciudad << " | "
+                 << temp->activo << endl;
             temp = temp->ligader;
         }
     }
