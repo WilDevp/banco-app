@@ -3,7 +3,7 @@
 - Crear una lista doblemente ligada que simule los clientes de un banco (identificacién (no puede existir mas de una vez), nombre, estrato social, ciudad y activo)
 
 - Crear una lista ligada simple que simule las cuentas de un banco
-(ntimero de cuenta (no se puede repetir), identificacion del
+(número de cuenta (no se puede repetir), identificacion del
 cliente (debe existir en la lista anterior y se puede repetir),
 saldo inicial que no puede ser menor a 50000 pesos y activo)
 
@@ -30,7 +30,7 @@ estrato cuatro o superior
 
 using namespace std;
 
-//Refaactor clase Cliente
+// Clase Cliente
 class Cliente {
 public:
     int ID;
@@ -44,6 +44,15 @@ public:
     Cliente *Sig;
 };
 
+// Struct de cuenta
+struct Cuenta {
+    int numeroDeCuenta;
+    int identificacionCliente;
+    int saldoInicial;
+    int activo;
+    Cuenta *siguiente;
+};
+
 /* Como el ejercicio indica en el enunciado que vamos a gestionar funcionalidades de un Banco
  * incialmente clientes debemos seguir con ese estandard
  * */
@@ -51,6 +60,7 @@ public:
 class Banco {
     Cliente *cabeza = nullptr;
     Cliente *cola = nullptr;
+    Cuenta *cabezaCuentas = NULL;
 public:
     Banco() {}
 
@@ -69,7 +79,7 @@ public:
             cin >> nuevoCliente->ID;
 
             // Verificación de la identificación que sea unica
-            Cliente* actual = cabeza;
+            Cliente *actual = cabeza;
             while (actual != NULL) {
                 if (actual->ID == nuevoCliente->ID) {
                     cout << "La identificación ingresada ya existe. Intente de nuevo." << endl;
@@ -88,7 +98,7 @@ public:
             cout << "Ingrese la ciudad donde vive: ";
             cin >> nuevoCliente->ciudad;
 
-            cout << "Ingrese el monto: ";
+            cout << "¿Desea activar el cliente? (1 para Sí, 0 para No): ";
             cin >> nuevoCliente->activo;
 
             if (cabeza == nullptr) {
@@ -108,12 +118,12 @@ public:
         } while (respuesta == "Si" || respuesta == "si");
     }
 
-    void imprimirClientes() {
+    void imprimir_clientes() {
         Cliente *temp = cabeza;
 
         while (temp != nullptr) {
             cout << temp->ID << " | " << temp->nombre << " | " << temp->estrato << " | " << temp->ciudad << " | "
-                 << temp->activo << endl;
+                 << (temp->activo ? "Sí" : "No") << endl;
             temp = temp->ligader;
         }
     }
@@ -132,7 +142,7 @@ public:
                     agregar_Cliente();
                     break;
                 case 2:
-                    imprimirClientes();
+                    imprimir_clientes();
                     break;
                 case 0:
                     cout << "Saliendo del programa..." << endl;
@@ -142,6 +152,88 @@ public:
             }
         } while (op != 0);
     }
+
+    void agregar_cuenta() {
+        Cuenta *nuevaCuenta = new Cuenta;
+        nuevaCuenta->siguiente = NULL;
+
+        cout << "Ingresa el número de cuenta: ";
+        cin >> nuevaCuenta->numeroDeCuenta;
+
+        //Verificamos que el número de cuenta no se repita
+        Cuenta *actualCuenta = cabezaCuentas;
+        while (actualCuenta != NULL) {
+            if (actualCuenta->numeroDeCuenta == nuevaCuenta->numeroDeCuenta) {
+                cout << "El número de cuenta ya existe. Intente de nuevo." << endl;
+                delete nuevaCuenta;
+                return;
+            }
+            actualCuenta = actualCuenta->siguiente;
+        }
+
+        cout << "Ingrese la identificación del cliente: ";
+        cin >> nuevaCuenta->identificacionCliente;
+
+        // Verificar que la identificación del cliente existe en la lista de clientes
+        Cliente *actualCliente = cabeza;
+        bool clienteExiste = false;
+        while (actualCliente != NULL) {
+            if (actualCliente->ID == nuevaCuenta->identificacionCliente) {
+                clienteExiste = true;
+                break;
+            }
+            actualCliente = actualCliente->ligader;
+        }
+
+        if (!clienteExiste) {
+            cout << "La identificación del cliente no existe. Intente de nuevo." << endl;
+            delete nuevaCuenta;
+            return;
+        }
+
+        cout << "Ingrese el saldo inicial: ";
+        cin >> nuevaCuenta->saldoInicial;
+
+        // Verificar que el saldo inicial es al menos 50.000
+        if (nuevaCuenta->saldoInicial < 50000) {
+            cout << "El saldo inicial no puede ser menor a 50.000. Intente de nuevo." << endl;
+            delete nuevaCuenta;
+            return;
+        }
+
+        cout << "Ingrese el estado de la cuenta (activo = 1, inactivo = 0): ";
+        cin >> nuevaCuenta->activo;
+
+        // Agregar la cuenta a la lista
+        if (cabezaCuentas == NULL) {
+            cabezaCuentas = nuevaCuenta;
+        } else {
+            Cuenta *temporal = cabezaCuentas;
+            while (temporal->siguiente != NULL) {
+                temporal = temporal->siguiente;
+            }
+            temporal->siguiente = nuevaCuenta;
+        }
+
+        cout << "Cuenta agregada exitosamente." << endl;
+    }
+
+    void imprimir_cuentas() {
+        Cuenta* cuentaActual = cabezaCuentas;
+
+        if (this->cabeza == nullptr) {
+            cout << "No hay cuentas en la lista." << std::endl;
+        } else {
+            while (cuentaActual != nullptr) {
+                cout << "\nNúmero de cuenta: " << cuentaActual->numeroDeCuenta
+                     << "\nIdentificación del cliente: " << cuentaActual->identificacionCliente
+                     << "\nSaldo: " << cuentaActual->saldoInicial
+                     << "\nActivo: " << (cuentaActual->activo ? "Sí" : "No") << ::endl;
+                cuentaActual = cuentaActual->siguiente;
+            }
+        }
+
+    }
 };
 
 int main() {
@@ -149,7 +241,42 @@ int main() {
     Banco banco;
 
     // Se utilizan los métodos de la instancia de Banco
-    banco.menu_Clientes();
+    //banco.menu_Clientes();
+
+    int opcion;
+    do {
+        cout << "\n1. Agregar cliente\n"
+             << "2. Agregar cuenta\n"
+             << "3. Mostrar clientes\n"
+             << "4. Mostrar cuentas\n"
+             << "5. Salir\n"
+             << "Ingrese una opción: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                // Llama a la función para agregar cliente
+                banco.menu_Clientes();
+                break;
+            case 2:
+                // Llama a la función para agregar cuenta
+                banco.agregar_cuenta();
+                break;
+            case 3:
+                // Llama a la función para mostrar clientes
+                banco.imprimir_clientes();
+                break;
+            case 4:
+                // Llama a la función para mostrar cuentas
+                banco.imprimir_cuentas();
+                break;
+            case 5:
+                std::cout << "Saliendo del programa.\n";
+                break;
+            default:
+                std::cout << "Opción no válida. Por favor intente de nuevo.\n";
+        }
+    } while (opcion != 5);
 
     return 0;
 }
