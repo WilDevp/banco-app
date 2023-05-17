@@ -1,19 +1,45 @@
 #include <iostream>
+#include "string"
+#include "vector"
 
 using namespace std;
 
-
-struct Cliente {
+//Refaactor clase Cliente
+class Cliente {
+public:
     int ID;
     string nombre;
     int estrato;
     string ciudad;
     int activo;
-    Cliente *ligaizq;
-    Cliente *ligader;
-    Cliente *Anterior;
-    Cliente *Sig;
-}; // Se considera refactorizar a una clase
+    Cliente* ligaizq;
+    Cliente* ligader;
+    Cliente* Anterior;
+    Cliente* Sig;
+
+    // Constructor
+    Cliente(int id, string nom, int estr, string ciu, int act):
+    ID(id), nombre(nom), estrato(estr), ciudad(ciu), activo(act){
+        ligaizq = nullptr;
+        ligader = nullptr;
+        Anterior = nullptr;
+        Sig = nullptr;
+    }
+
+};
+//struct CLiente actual/*
+// struct Cliente {
+//    int ID;
+//    string nombre;
+//    int estrato;
+//    string ciudad;
+//    int activo;
+//    Cliente *ligaizq;
+//    Cliente *ligader;
+//    Cliente *Anterior;
+//    Cliente *Sig;
+//};*/
+ // Se considera refactorizar a una clase
 
 typedef struct Cliente *Registro;
 Registro cabeza, anterior;
